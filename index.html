@@ -3,166 +3,226 @@
 <head>
   <meta charset="UTF-8" />
   <title>Horas Clockify</title>
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f4f6fa;
-    margin: 0;
-    padding: 40px;
-    color: #333;
-  }
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #1c1c1c;
+      color: #fff;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 16px;
+    }
 
-  h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
-  }
+    h1 {
+      text-align: center;
+      color: #00bcd4;
+      margin-bottom: 20px;
+      font-size: 2em;
+      font-weight: 700;
+    }
 
-  .api-key, .controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
+    .api-key, .controls, .filters {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
 
-  input[type="text"], input[type="date"] {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  }
+    input[type="text"], input[type="date"] {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #2f2f2f;
+      color: #fff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      width: 250px;
+    }
 
-  button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
+    input[type="text"]:focus, input[type="date"]:focus {
+      outline: none;
+      border: 2px solid #00bcd4;
+      box-shadow: 0 0 8px rgba(0, 188, 212, 0.5);
+    }
 
-  button:hover {
-    background-color: #2980b9;
-  }
+    button {
+      background-color: #00bcd4;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
 
-  .summary {
-    text-align: center;
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 18px;
-    color: #2c3e50;
-  }
+    button:hover {
+      background-color: #0097a7;
+      transform: scale(1.05);
+    }
 
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-top: 30px;
-  }
+    .summary {
+      text-align: center;
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #00bcd4;
+    }
 
-  th, td {
-    padding: 12px 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-  }
+    table {
+      width: 100%;
+      background: #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      margin-top: 30px;
+      overflow: hidden;
+      border-collapse: collapse;
+    }
 
-  th {
-    background-color: #eaf4ff;
-    font-weight: 600;
-    color: #34495e;
-  }
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
 
-  tr:hover {
-    background-color: #f1f9ff;
-  }
+    th {
+      background-color: #1f1f1f;
+      color: #00bcd4;
+      font-weight: 600;
+    }
 
-  .loading {
-    text-align: center;
-    font-style: italic;
-    color: #888;
-    margin-top: 20px;
-  }
+    tr:nth-child(even) {
+      background-color: #2f2f2f;
+    }
 
-  footer {
-    text-align: center;
-    margin-top: 50px;
-    color: #bbb;
-    font-size: 0.9em;
-  }
-</style>
+    tr:hover {
+      background-color: #444;
+    }
+
+    .loading {
+      text-align: center;
+      font-style: italic;
+      color: #bbb;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #bbb;
+      font-size: 0.9em;
+    }
+
+    @media screen and (max-width: 768px) {
+      .api-key, .controls, .filters {
+        flex-direction: column;
+      }
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .table-container::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background-color: #00bcd4;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
   <h1>Relatório de Horas por Tarefa</h1>
 
   <div class="api-key">
-    <input type="text" id="apiKeyInput" placeholder="Cole sua API Key do Clockify" style="width: 300px;" />
+    <input type="text" id="apiKeyInput" placeholder="Cole sua API Key do Clockify" />
+    <input type="text" id="jiraEmail" placeholder="Email Jira" />
+    <input type="text" id="jiraToken" placeholder="Token Jira" />
     <button onclick="inicializar()">Usar API Key</button>
   </div>
 
   <div class="controls">
     <label for="dataInicio">De:</label>
-    <input type="date" id="dataInicio" onchange="filtrarPorDataRange()">
+    <input type="date" id="dataInicio" onchange="filtrarPorDataRange()" />
     <label for="dataFim">Até:</label>
-    <input type="date" id="dataFim" onchange="filtrarPorDataRange()">
+    <input type="date" id="dataFim" onchange="filtrarPorDataRange()" />
+  </div>
+
+  <div class="filters">
+    <input type="text" id="filtroTarefa" placeholder="Filtrar por ID da Tarefa" onchange="filtrarTarefas()" />
+    <input type="text" id="filtroStatus" placeholder="Filtrar por Status" onchange="filtrarStatus()" />
   </div>
 
   <div class="loading" id="loading">Carregando dados da Clockify...</div>
 
-  <table id="tabela" style="display: none;">
-    <thead>
-      <tr>
-        <th></th>
-        <th>ID da Tarefa</th>
-        <th>Data</th>
-        <th>Análise (h)</th>
-        <th>Pontos Análise</th>
-        <th>Desenvolvimento (h)</th>
-        <th>Pontos Dev</th>
-        <th>Total (h)</th>
-        <th>Total Pontos</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-container">
+    <table id="tabela" style="display: none;">
+      <thead>
+        <tr>
+          <th></th>
+          <th>ID da Tarefa</th>
+          <th>Data</th>
+          <th>Análise (h)</th>
+          <th>Pontos Análise</th>
+          <th>Desenvolvimento (h)</th>
+          <th>Pontos Dev</th>
+          <th>Total (h)</th>
+          <th>Total Pontos</th>
+          <th>Status Jira</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <div class="summary">
     Pontuação Total Selecionada: <span id="pontuacaoTotal">0,00</span>
   </div>
 
   <h2 style="text-align:center; margin-top:60px;">Tarefas Finalizadas</h2>
-  <table id="tabelaFinalizadas" style="display: none;">
-    <thead>
-      <tr>
-        <th>ID da Tarefa</th>
-        <th>Data</th>
-        <th>Total Pontos</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-container">
+    <table id="tabelaFinalizadas" style="display: none;">
+      <thead>
+        <tr>
+          <th>ID da Tarefa</th>
+          <th>Data</th>
+          <th>Total Pontos</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-  <footer style="text-align: center; margin-top: 50px; color: #aaa; font-size: 0.9em;">
+  <footer style="text-align: center; margin-top: 50px;">
     &copy; 2025 Meneses. Todos os direitos reservados.
   </footer>
 
-<script>
+<script defer>
   let API_KEY = localStorage.getItem('apiKey') || '';
+  let jiraEmail = localStorage.getItem('jiraEmail') || '';
+  let jiraToken = localStorage.getItem('jiraToken') || '';
   let USER_ID = '';
   let WORKSPACE_ID = '';
   let tarefasGlobais = {};
   let finalizadas = JSON.parse(localStorage.getItem('finalizadas') || '[]');
+  let tarefasFiltradas = {};
+  let filtroTarefa = '';
+  let filtroStatus = '';
+  let currentMonth = new Date().getMonth();  // Mês atual
+  let pontuacaoTotal = 0;
 
   document.getElementById('apiKeyInput').value = API_KEY;
+  document.getElementById('jiraEmail').value = jiraEmail;
+  document.getElementById('jiraToken').value = jiraToken;
 
   const durationToSeconds = iso => {
     const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
@@ -188,8 +248,15 @@
 
   async function inicializar() {
     API_KEY = document.getElementById('apiKeyInput').value.trim();
-    if (!API_KEY) return alert('Insira uma API Key válida.');
+    jiraEmail = document.getElementById('jiraEmail').value.trim();
+    jiraToken = document.getElementById('jiraToken').value.trim();
+
+    if (!API_KEY || !jiraEmail || !jiraToken) return alert('Insira uma API Key, Email e Token válidos.');
+
     localStorage.setItem('apiKey', API_KEY);
+    localStorage.setItem('jiraEmail', jiraEmail);
+    localStorage.setItem('jiraToken', jiraToken);
+
     try {
       const res = await fetch('https://api.clockify.me/api/v1/user', {
         headers: { 'X-Api-Key': API_KEY }
@@ -212,6 +279,24 @@
     return data;
   }
 
+  async function fetchStatusJira(tarefaId) {
+    const auth = 'Basic ' + btoa(`${jiraEmail}:${jiraToken}`);
+    const url = `https://nimitz.atlassian.net/rest/api/2/issue/${tarefaId}`;
+    const corsUrl = 'https://cors-anywhere.herokuapp.com/' + url;
+
+    const response = await fetch(corsUrl, {
+      headers: {
+        'Authorization': auth,
+        'Accept': 'application/json'
+      }
+    });
+    const data = await response.json();
+    return {
+      status: data.fields.status.name,
+      dataConclusao: data.fields.resolutiondate
+    };
+  }
+
   function agruparHorasPorTarefa(data) {
     const tarefas = {};
     data.forEach(entry => {
@@ -230,18 +315,45 @@
     return tarefas;
   }
 
+  function filtrarTarefas() {
+    filtroTarefa = document.getElementById('filtroTarefa').value.trim().toUpperCase();
+    atualizarTabela();
+  }
+
+  function filtrarStatus() {
+    filtroStatus = document.getElementById('filtroStatus').value.trim().toLowerCase();
+    atualizarTabela();
+  }
+
   function preencherTabela(tarefas) {
     const tbody = document.querySelector("#tabela tbody");
     tbody.innerHTML = '';
-    Object.entries(tarefas).forEach(([id, t]) => {
+    pontuacaoTotal = 0;  // Resetando a pontuação total
+
+    const promessas = Object.entries(tarefas).map(async ([id, t]) => {
+      if ((filtroTarefa && !id.toUpperCase().includes(filtroTarefa)) || (filtroStatus && !t.status?.toLowerCase().includes(filtroStatus))) {
+        return;
+      }
+
       const analiseHoras = t.analise / 3600;
       const devHoras = t.desenvolvimento / 3600;
       const pontosAnalise = calcularPontos(analiseHoras);
       const pontosDev = calcularPontos(devHoras);
       const totalPontos = pontosAnalise + pontosDev;
+      const status = await fetchStatusJira(id);
+      t.status = status.status;
+      const conclusao = new Date(status.dataConclusao);
+      const currentDate = new Date();
+
+      if (conclusao.getMonth() < currentDate.getMonth()) {
+        finalizadas.push({ id, data: t.data, pontos: totalPontos });
+      } else {
+        tarefasGlobais[id] = t;
+      }
+
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><input type="checkbox" data-pontos="${totalPontos}" onchange="atualizarPontuacaoTotal()"></td>
+        <td><input type="checkbox" data-pontos="${totalPontos}" onchange="atualizarPontuacaoTotal()" ${conclusao.getMonth() === currentMonth ? 'checked' : ''}></td>
         <td>${id}</td>
         <td>${formatarData(t.data)}</td>
         <td>${formatarDuracao(t.analise)}</td>
@@ -250,16 +362,31 @@
         <td>${format(pontosDev)}</td>
         <td>${formatarDuracao(t.analise + t.desenvolvimento)}</td>
         <td>${format(totalPontos)}</td>
+        <td>${status.status}</td>
         <td><button onclick="marcarComoFinalizada('${id}', '${t.data}', ${totalPontos})">Finalizar</button></td>
       `;
       tbody.appendChild(row);
+
+      // Somando a pontuação total de todas as tarefas
+      if (conclusao.getMonth() === currentMonth) {
+        pontuacaoTotal += totalPontos;
+      }
     });
+
+    Promise.all(promessas).then(() => {
+      document.getElementById('pontuacaoTotal').textContent = format(pontuacaoTotal);
+    });
+  }
+
+  function atualizarTabela() {
+    preencherTabela(tarefasGlobais);
   }
 
   function atualizarPontuacaoTotal() {
     const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
     let total = 0;
     checkboxes.forEach(cb => total += parseFloat(cb.dataset.pontos));
+    pontuacaoTotal = total;
     document.getElementById('pontuacaoTotal').textContent = format(total);
   }
 
@@ -269,7 +396,7 @@
       localStorage.setItem('finalizadas', JSON.stringify(finalizadas));
       atualizarTabelaFinalizadas();
       delete tarefasGlobais[id];
-      preencherTabela(tarefasGlobais);
+      atualizarTabela();
     }
   }
 
@@ -292,7 +419,7 @@
   function filtrarPorDataRange() {
     const inicio = document.getElementById('dataInicio').value;
     const fim = document.getElementById('dataFim').value;
-    if (!inicio && !fim) return preencherTabela(tarefasGlobais);
+    if (!inicio && !fim) return atualizarTabela();
     const startDate = inicio ? new Date(inicio) : new Date('1970-01-01');
     const endDate = fim ? new Date(fim) : new Date('9999-12-31');
     const filtradas = Object.fromEntries(
@@ -308,7 +435,7 @@
     const dados = await fetchHorasClockify();
     tarefasGlobais = agruparHorasPorTarefa(dados);
     atualizarTabelaFinalizadas();
-    preencherTabela(tarefasGlobais);
+    atualizarTabela();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('tabela').style.display = 'table';
   }
